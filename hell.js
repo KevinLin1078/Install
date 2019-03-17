@@ -3,26 +3,35 @@
 var express = require('express')
 var app = express()
 var path = require('path')
-var bodyParser = require('body-parser');
+var bodyParser = require('body-parser')
 
 
-app.use(express.static(path.join(__dirname, '/templates'))) //tells Nodejs that template is static
+app.use(express.static(path.join(__dirname, '/views'))) //tells Nodejs that template is static
+app.set('view engine', 'ejs') // will lok for 'views' folder
+app.use(bodyParser.urlencoded( {extended: true}) ) ; // must use this to parse form data
 
 
-app.get('/', index)
+app.all('/', index)
 function index(request, response){
-	response.sendFile(__dirname + '/templates/login.html')
+	return response.render('login', {person : "KevinLOII"})
 }
 
-app.get('/hey', adduser)
+app.all('/adduser', adduser)
 function adduser(request, response){
-	console.log(request.method)
-	response.sendFile(__dirname + '/templates/adduser.html')
+	if( request.method == 'POST'){
+		name = request.body['username']
+		email = request.body['email']
+		password = request.body['password']
+		
+	}
+	return response.render('adduser')
 }
-
-
 
 
 
 app.listen(8080, 'localhost');
 console.log('Server running at http://localhost:8080/');
+
+
+//response.sendFile(__dirname + '/templates/adduser.html')
+//<%= person %>      ejs template engine
