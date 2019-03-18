@@ -5,7 +5,11 @@ var app = express()
 var path = require('path')
 var bodyParser = require('body-parser')
 
-var morgan = require('morgan')
+var session = require('express-session')
+//npm install express-session
+
+
+app.use(session({secret:'iloveit'}))
 
 app.use(express.static(path.join(__dirname, '/views'))) //tells Nodejs that template is static
 app.set('view engine', 'ejs') // will lok for 'views' folder
@@ -17,6 +21,7 @@ function index(request, response){
 	return response.render('login', {person : "KevinLOII"})
 }
 
+
 app.all('/adduser', adduser)
 function adduser(request, response){
 	if( request.method == 'POST'){
@@ -24,17 +29,38 @@ function adduser(request, response){
 		email = request.body['email']
 		password = request.body['password']
 		console.log("Added")
-		
-		return response.json({ 'status': 'OK' });
-		
+		return response.json({ 'status': 'OK' })
 	}
 	return response.render('adduser')
 }
 
 
-app.listen(8080, 'localhost');
-console.log('Server running at http://0.0.0.0:8080/');
 
+app.all('/login', login)
+function login(request, response){
+	if( request.method == 'POST'){
+		name = request.body['username']
+		password = request.body['password']
+		request.session['name'] = name
+		return response.json({ 'status': 'OK' , 'session': request.session['name'] })
+	}
+	return response.render('login')
+}
+
+app.all('/logout', logout)
+function logout(request, response){
+	if( request.method == 'POST'){
+		request.session['name'] = null;
+		return response.json({"sessionPOST" :request.session['name']})
+	}
+	request.session = null;
+	return response.json({"sessionGET" :request.session})
+}
+
+
+
+app.listen(8080, 'localhost');
+console.log('Server running at http://0.0.0.0:8080/')
 
 //response.sendFile(__dirname + '/templates/adduser.html')
 //<%= person %>      ejs template engine
