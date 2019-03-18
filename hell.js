@@ -5,6 +5,8 @@ var app = express()
 var path = require('path')
 var bodyParser = require('body-parser')
 
+var morgan = require('morgan')
+
 app.use(express.static(path.join(__dirname, '/views'))) //tells Nodejs that template is static
 app.set('view engine', 'ejs') // will lok for 'views' folder
 app.use(bodyParser.urlencoded( {extended: true}) ) ; // must use this to parse form data
@@ -21,8 +23,8 @@ function adduser(request, response){
 		name = request.body['username']
 		email = request.body['email']
 		password = request.body['password']
-		
-		
+		response.json({ 'status': 'OK' });
+
 	}
 	return response.render('adduser')
 }
