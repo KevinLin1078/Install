@@ -23,8 +23,10 @@ function adduser(request, response){
 		name = request.body['username']
 		email = request.body['email']
 		password = request.body['password']
-		response.json({ 'status': 'OK' });
-
+		console.log("Added")
+		
+		return response.json({ 'status': 'OK' });
+		
 	}
 	return response.render('adduser')
 }
