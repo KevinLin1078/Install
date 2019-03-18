@@ -4,6 +4,7 @@ var express = require('express')
 var app = express()
 var path = require('path')
 var bodyParser = require('body-parser')
+
 var morgan = require('morgan')
 
 app.use(express.static(path.join(__dirname, '/views'))) //tells Nodejs that template is static
@@ -22,8 +23,8 @@ function adduser(request, response){
 		name = request.body['username']
 		email = request.body['email']
 		password = request.body['password']
-		
 		response.json({ 'status': 'OK' });
+
 	}
 	return response.render('adduser')
 }
