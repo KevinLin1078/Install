@@ -1,0 +1,16 @@
+sudo unlink /etc/nginx/sites-enabled/default
+sudo ln -s /etc/nginx/sites-available/default /etc/nginx/sites-enabled/default
+
+sudo nginx -t
+sudo systemctl restart nginx
+
+cat /var/log/nginx/error.log
+cat /var/log/nginx/access.log
+
+sudo nano /etc/nginx/sites-available/default
+sudo nano /etc/nginx/nginx.conf
+
+sudo pm2 restart hell
+
+
+sudo npm install express

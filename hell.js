@@ -28,9 +28,8 @@ function adduser(request, response){
 }
 
 
-
 app.listen(8080, 'localhost');
-console.log('Server running at http://localhost:8080/');
+console.log('Server running at http://0.0.0.0:8080/');
 
 
 //response.sendFile(__dirname + '/templates/adduser.html')
