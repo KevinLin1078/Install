@@ -4,7 +4,7 @@ var express = require('express')
 var app = express()
 var path = require('path')
 var bodyParser = require('body-parser')
-
+var morgan = require('morgan')
 
 app.use(express.static(path.join(__dirname, '/views'))) //tells Nodejs that template is static
 app.set('view engine', 'ejs') // will lok for 'views' folder
@@ -23,6 +23,7 @@ function adduser(request, response){
 		email = request.body['email']
 		password = request.body['password']
 		
+		response.json({ 'status': 'OK' });
 	}
 	return response.render('adduser')
 }
@@ -30,7 +31,7 @@ function adduser(request, response){
 
 
 app.listen(8080, 'localhost');
-console.log('Server running at http://localhost:8080/');
+console.log('Server running at http://0.0.0.0:8080/');
 
 
 //response.sendFile(__dirname + '/templates/adduser.html')
