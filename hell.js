@@ -7,9 +7,9 @@ var bodyParser = require('body-parser')
 var session = require('express-session')
 //npm install express-session
 var MongoClient = require('mongodb').MongoClient;
-var url = 'mongodb://localhost:27017';
+// var url = 'mongodb://localhost:27017';
 
-
+var url = 'mongodb://130.245.170.77:27017';
 
 console.log('successSSS')
 
@@ -33,20 +33,24 @@ function adduser(request, response){
 		name = request.body['username']
 		email = request.body['email']
 		password = request.body['password']
+
 		
 
 		MongoClient.connect(url,  { useNewUrlParser: true }, insertUser)
 		function insertUser(err, db){
 			if (err) throw err;
- 
+
 			var userTable = db.db("stack").collection("user")
 			var user = { 'username': name, 'email': email, 'password': password, 'verified': 'no' }
 		  	userTable.insertOne(user)
 		  	var myquery = { 'username': "Anna" }
 		  	var newvalues = { $set: {'verified': "yes" } };
-		  	userTable.updateOne(myquery, newvalues)
-		  	database.close()
-		  	global.ret = 'done'
+		  	userTable.updateOne(myquery, newvalues, updateStat)
+		  	function updateStat(err, res){
+		  		if (err) throw err;
+		  		global.ret = 'Successfully update'
+		  	}
+		  	db.close()
 		}
 		console.log("Added")
 		return response.json({ 'status': 'OK' , "post": global.ret})
