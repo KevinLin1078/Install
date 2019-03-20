@@ -37,6 +37,8 @@ function adduser(request, response){
 
 		MongoClient.connect(url,  { useNewUrlParser: true }, insertUser)
 		function insertUser(err, db){
+			if (err) throw err;
+ 
 			var userTable = db.db("stack").collection("user")
 			var user = { 'username': name, 'email': email, 'password': password, 'verified': 'no' }
 		  	userTable.insertOne(user)
@@ -46,12 +48,8 @@ function adduser(request, response){
 		  	database.close()
 		  	global.ret = 'done'
 		}
-
-
-
-
 		console.log("Added")
-		return response.json({ 'status': 'OK' , "also": global.ret})
+		return response.json({ 'status': 'OK' , "post": global.ret})
 	}
 	return response.render('adduser')
 }
