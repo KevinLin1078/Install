@@ -4,9 +4,13 @@ var express = require('express')
 var app = express()
 var path = require('path')
 var bodyParser = require('body-parser')
-
 var session = require('express-session')
 //npm install express-session
+var MongoClient = require('mongodb').MongoClient;
+var url = 'mongodb://130.245.170.77:27017';
+
+
+
 
 
 app.use(session({secret:'iloveit'}))
