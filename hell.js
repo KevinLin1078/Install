@@ -7,15 +7,9 @@ var bodyParser = require('body-parser')
 var session = require('express-session')
 //npm install express-session
 var MongoClient = require('mongodb').MongoClient;
-var url = 'mongodb://130.245.170.77:27017';
+var url = 'mongodb://localhost:27017';
 
 
-MongoClient.connect(url,  { useNewUrlParser: true }, insert)
-function insert(err, db){
-	var dbo = db.db("mm");
-	var myobj = { name: "Anniec", address: "Anna 37" };
-  	dbo.collection("movie").insertOne(myobj)
-}
 
 console.log('successSSS')
 
@@ -34,6 +28,14 @@ function index(request, response){
 
 app.all('/adduser', adduser)
 function adduser(request, response){
+	
+	MongoClient.connect(url,  { useNewUrlParser: true }, insert)
+	function insert(err, db){
+		var dbo = db.db("mm");
+		var myobj = { name: "Ann23iec", address: "Anna 43537" };
+	  	dbo.collection("movie").insertOne(myobj)
+	  	db.close()
+	}
 	if( request.method == 'POST'){
 		name = request.body['username']
 		email = request.body['email']
