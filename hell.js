@@ -29,17 +29,28 @@ function index(request, response){
 app.all('/adduser', adduser)
 function adduser(request, response){
 	
-	MongoClient.connect(url,  { useNewUrlParser: true }, insert)
-	function insert(err, db){
-		var dbo = db.db("mm");
-		var myobj = { name: "Ann23iec", address: "Anna 43537" };
-	  	dbo.collection("movie").insertOne(myobj)
-	  	db.close()
-	}
 	if( request.method == 'POST'){
 		name = request.body['username']
 		email = request.body['email']
 		password = request.body['password']
+		
+
+		MongoClient.connect(url,  { useNewUrlParser: true }, insertUser)
+		function insertUser(err, db){
+			var userTable = db.db("stack").collection("user")
+			var user = { 'username': name, 'email': email, 'password': password, 'verified': 'no' }
+		  	userTable.insertOne(user)
+		  	
+		  	
+		  	var myquery = { 'username': "Anna" }
+		  	var newvalues = { $set: {'verified': "yes" } };
+		  	userTable.updateOne(myquery, newvalues)
+		  	database.close()
+		}
+
+
+
+
 		console.log("Added")
 		return response.json({ 'status': 'OK' })
 	}
