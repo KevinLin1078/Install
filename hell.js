@@ -48,8 +48,8 @@ function adduser(request, response){
 		  	userTable.updateOne(myquery, newvalues, updateStat)
 		  	function updateStat(err, res){
 		  		if (err) throw err;
-		  		global.ret = 'Successfully update'
 		  	}
+		  	global.ret = 'Successfully update'
 		  	db.close()
 		}
 		console.log("Added")
