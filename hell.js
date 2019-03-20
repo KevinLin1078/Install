@@ -25,7 +25,7 @@ function index(request, response){
 	return response.render('login', {person : "KevinLOII"})
 }
 
-
+global.ret = "NONE"
 app.all('/adduser', adduser)
 function adduser(request, response){
 	
@@ -40,19 +40,18 @@ function adduser(request, response){
 			var userTable = db.db("stack").collection("user")
 			var user = { 'username': name, 'email': email, 'password': password, 'verified': 'no' }
 		  	userTable.insertOne(user)
-		  	
-		  	
 		  	var myquery = { 'username': "Anna" }
 		  	var newvalues = { $set: {'verified': "yes" } };
 		  	userTable.updateOne(myquery, newvalues)
 		  	database.close()
+		  	global.ret = 'done'
 		}
 
 
 
 
 		console.log("Added")
-		return response.json({ 'status': 'OK' })
+		return response.json({ 'status': 'OK' , "also": global.ret})
 	}
 	return response.render('adduser')
 }
