@@ -1,18 +1,3 @@
-
-import os
-
-arr=[
-	'sudo apt-get update', 'sudo apt-get install -y nodejs',	
-	'sudo apt-get install -y npm', 'curl -sL https://deb.nodesource.com/setup_8.x -o nodesource_setup.sh',
-	'sudo bash nodesource_setup.sh', 'sudo apt-get install -y nodejs', 'sudo apt-get install -y build-essential',
-	'sudo npm install -y -g pm2', 'sudo ufw allow OpenSSH'
-	]
-
-for i in arr:
-	os.system(i)
-
-
-
 #!/usr/bin/env nodejs
 //var http = require('http');
 var express = require('express')
@@ -21,8 +6,8 @@ var path = require('path')
 var bodyParser = require('body-parser')
 var session = require('express-session')
 var MongoClient = require('mongodb').MongoClient;
-var url = 'mongodb://localhost:27017';
-//var url = 'mongodb://130.245.170.77:27017';
+//var url = 'mongodb://localhost:27017';
+var url = 'mongodb://130.245.170.77:27017';
 
 
 app.use(session({secret:'iloveit'}))
@@ -46,21 +31,16 @@ function adduser(request, response){
 		var name = jss['username']
 		var email = jss['email']
 		var password = jss['password']
+		var db = request.app.locals.db
+		test = [0]
+		var user = { 'username': name, 'email': email, 'password': password, 'verified': 'no' }
+		db.collection('user').insertOne(user, function(err, r){
+			if(err) {throw err}
+			console.log('addedd   success')
+			test[0] = 1
+		})
+		console.log(test[0])
 
-		MongoClient.connect(url,  { useNewUrlParser: true }, insertUser)
-		function insertUser(err, db){
-			if (err) throw err;
-			var userTable = db.db("stack").collection("user")
-			var user = { 'username': name, 'email': email, 'password': password, 'verified': 'no' }
-		  	userTable.insertOne(user)
-		  	// var myquery = { 'username': name }
-		  	// var newvalues = { $set: {'verified': "yes" } };
-		  	// userTable.updateOne(myquery, newvalues, updateStat)
-		  	// function updateStat(err, res){
-		  	// 	if (err) throw err;
-		  	// }
-		  	db.close()
-		}
 		console.log("Added user")
 		return response.json({ 'status': 'OK' })
 	}
@@ -91,41 +71,38 @@ function verify(request, response){
 		  	}
 		  	db.close()
 		}
-		
 		return response.json({ 'status': 'OK' })
 
 	}
 }
-
-
 
 app.all('/login', login)
 function login(request, response){
 	if( request.method == 'POST'){
 		var username = request.body['username']
 		var password = request.body['password']
-		
+		var ret = {'status': "OK"}
 
-		MongoClient.connect(url,  { useNewUrlParser: true }, validatePassword)
-		function validatePassword(err, db){
-			if (err) throw err;
-
+		MongoClient.connect(url,{ useNewUrlParser: true }, function(err, db){
+			if(err){throw err}
 			var userTable = db.db("stack").collection("user")
-		  	var myquery = { 'username': username }
-		  	var newvalues = { $set: {'verified': "yes" } };
-		  	var ree = userTable.findOne(myquery, getQuery)
-		  	function getQuery(err, res){
-		  		if (err) throw err;
-		  		if(res.password != password){
-		  			return { 'status': 'ERROR' }
-		  		}else{
-		  			request.session['user'] = username
-		  			return return { 'status': 'OK' }
-		  		}
-		  	}
-		  	db.close()
-		}
-		return response.json(ree)
+			userTable.find({'username': username}).toArray(function(err, result){
+				if(err) res.send(err);
+				query = result[0]
+				console.log("QUERY is :" + query.verified)
+				if(query['password'] == password && query['verified'] == 'yes'){
+					request.session['user'] = username
+
+				}else{
+					ret['status'] = "ERROR"
+					console.log("result is " + ret['status'])
+		return response.json(ret)
+
+				}
+			})
+			db.close()				
+		})
+		
 	}
 	return response.render('login')
 }
@@ -140,9 +117,17 @@ function logout(request, response){
 
 
 
+MongoClient.connect(url, { useNewUrlParser: false }, (err, client) => {
+    // ... start the server
+    if(err){throw err}
+    db = client.db('stack');
+    app.locals.db = db;
+    app.listen(8080, 'localhost');
+    console.log('Server running at http://0.0.0.0:8080/')
+})
 
-app.listen(8080, 'localhost');
-console.log('Server running at http://0.0.0.0:8080/')
+
+
 
 //response.sendFile(__dirname + '/templates/adduser.html')
 //<%= person %>      ejs template engine
