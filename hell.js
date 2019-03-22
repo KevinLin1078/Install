@@ -67,7 +67,7 @@ function verify(request, response){
 	  		})
 	  		return response.json({ 'status': 'OK' }) 
 		}else{
-			return response.json({ 'status': 'ERROR' })
+			return response.json({ 'status':'error'}) 
 		}
 
 		
@@ -95,7 +95,7 @@ function login(request, response){
 					console.log("login :" + request.session.user)
 					return response.json({ 'status': 'OK' }) 
 				}else{
-					return response.json({ 'status': 'ERROR' }) 
+					return response.json({ 'status':'error'}) 
 				}
 			})			
 		})
@@ -139,7 +139,7 @@ function addQuestions(request, response){
 								'tags': tags, 
 								'view_count': 0,
 								'time' : Date.now(),
-								'pid' : pid
+								'pid' : pid// id of question
 						 	}
 
 		  	questionTable.insertOne(question)
@@ -150,17 +150,87 @@ function addQuestions(request, response){
 
 }
 
-/*
-user = {username, email, password, verified: 'no/yes' }	//all users in the database
-question = { username,title, body, tags, view_count }   			//person who post the question
-id = id
 
 
-*/
+
+
+
+app.get('/questions/:pid', getQuestion) //pid = id of Question
+function getQuestion(request, response){
+	MongoClient.connect(url,  { useNewUrlParser: true }).then(updateViewCount)
+	function updateViewCount(db){
+		var questionTable = db.db("stack").collection("question")
+		var pid = parseInt(request.params.pid)
+		var userTable = db.db("stack").collection("user")
+
+		questionTable.findOne({'pid':pid}, getCount)
+		function getCount(err, result){
+			
+			count = result['view_count']
+			console.log('before count is :  '+ count)
+			questionTable.updateOne({'pid': pid}, { $set: {'view_count': count + 1}},
+				function(err, res){
+					console.log('update is ' + res)
+
+					questionTable.findOne({'pid': pid},
+						function(err, result){
+							var username =  result['username']
+							var body = result['body']
+							var timestamp =  result['time']
+							var tags = result['tags']
+							var view_count = result['view_count']
+							console.log('after count is :  '+ result['view_count'])
+							userTable.findOne({'username': username}, 
+								function(err, result){
+									var userID = result['_id'].toString()
+									data = 	{	'status': 'OK',
+										'question' :{	'id':pid.toString(),
+														'user': { 	'id': userID,	// IMplement
+																	'username': username,
+																	'reputation' : 0,
+																},
+													},
+										'body': body,
+										'score': -1000000,
+										'view_count' : view_count,
+										'answer_count': -100000000,
+										'timestamp': timestamp,
+										'media': [],
+										'tags': tags,
+										'accepted_answer_id': -1000000000
+									}
+									console.log('done')
+									return response.json(data) 					
+								})
+						})
+					
+				})
+
+								
+			
+			
+				
+		}
+	}
+}
+
+
+
+
+
+
+
 
 
 app.listen(8080, 'localhost');
 console.log('Server running at http://0.0.0.0:8080/')
 
-//response.sendFile(__dirname + '/templates/adduser.html')
-//<%= person %>      ejs template engine
+/*
+user = {username, email, password, verified: 'no/yes' }	//all users in the database
+question = { username,title, body, tags, view_count, time }   			//person who post the question
+id = id
+
+
+response.sendFile(__dirname + '/templates/adduser.html')
+<%= person %>      ejs template engine
+*/
