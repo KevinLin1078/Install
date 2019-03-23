@@ -7,8 +7,8 @@ var bodyParser = require('body-parser')
 var session = require('express-session')
 var mongodb = require('mongodb');
 var MongoClient = mongodb.MongoClient;
-//var url = 'mongodb://localhost:27017';
-var url = 'mongodb://130.245.170.77:27017';
+var url = 'mongodb://localhost:27017';
+//var url = 'mongodb://130.245.170.77:27017';
 
 
 app.use(session({resave:true, secret:'iloveit', saveUninitialized:true}))
@@ -150,11 +150,6 @@ function addQuestions(request, response){
 
 }
 
-
-
-
-
-
 app.get('/questions/:pid', getQuestion) //pid = id of Question
 function getQuestion(request, response){
 	MongoClient.connect(url,  { useNewUrlParser: true }).then(updateViewCount)
@@ -204,21 +199,50 @@ function getQuestion(request, response){
 								})
 						})
 					
-				})
-
-								
-			
-			
-				
+				})				
 		}
 	}
 }
 
 
+app.post('/questions/:pid/answers/add', addAnswer)
+function addAnswer(request, response){
+	MongoClient.connect(url,  { useNewUrlParser: true }).then(addAnswer2)
+	function addAnswer2(db){
+		var answerTable = db.db("stack").collection("answer")
+		
+		var pid = parseInt(request.params.pid)
+		var body = request.body['body']
+		var media = request.body['media']
+		var aidTable = db.db("stack").collection("answer_id")
+	
+		aidTable.findOne({"aid": "aid"}, 
+		function(err, result){
+			//if(result == null){return response.json({"status":"doesnt exist"})}
+			var aid = result['id']
+			
+			aidTable.updateOne({'aid':'aid'}, { $set: {'id': aid+1 } }, 
+			function(err, res){
+				
+				answer ={	'pid' : pid,
+							'body': body,
+							'media': media,
+							'aid': aid
+						}
+				
+				answerTable.insertOne(answer, 
+				function(err, res){
+					
+					return response.json({"status":"OK", "id": aid})
+				})
 
 
 
+			})
+		})
 
+	}
+}
 
 
 
