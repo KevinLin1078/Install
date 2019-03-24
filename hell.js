@@ -20,85 +20,93 @@ app.use(bodyParser.json() ) ; // must use this to parse form data
 
 app.all('/', index)
 function index(request, response){
-	return response.render('login', {person : "KevinLOII"})
+	return response.redirect('/login')
 }
+
 
 global.ret = "NONE"
-app.post('/adduser', adduser)
+app.all('/adduser', adduser)
 function adduser(request, response){
-	
-	MongoClient.connect(url,  { useNewUrlParser: true }).then(function (db){
-		var jss = request.body
-		var name = jss['username']
-		var email = jss['email']
-		var password = jss['password']
-		test = 12	
-		var userTable = db.db("stack").collection("user")
-		var user = 	{ 	'username': name, 
-						'email': email, 
-						'password': password, 
-						'verified': 'no' 
-					}
-	  	
-	  	userTable.insertOne(user)
-	  	console.log('adduser')
-	  	db.close()
-	  	return response.json({ 'status': 'OK' })
-	}).catch(function(err){
-		if (err) throw err
-	})
-}
-
-
-app.post('/verify',verify)
-function verify(request, response){
-	
-	MongoClient.connect(url,  { useNewUrlParser: true }).then(function (db){
-		
-		var email = request.body['email']
-		var key=request.body['key']
-		if(key == 'abracadabra'){
+	if(request.method == 'POST'){
+		MongoClient.connect(url,  { useNewUrlParser: true }).then(function (db){
+			var jss = request.body
+			var name = jss['username']
+			var email = jss['email']
+			var password = jss['password']
+			test = 12	
 			var userTable = db.db("stack").collection("user")
-	  		var myquery = { 'email': email }
-	  		var newvalues = { $set: {'verified': "yes" } };
-	  		userTable.updateOne(myquery, newvalues, function(err, res){
-	  			if (err) throw err;
-	  			console.log('verifyied Success')
-	  		})
-	  		return response.json({ 'status': 'OK' }) 
-		}else{
-			return response.json({ 'status':'error'}) 
-		}
-
-		
-	  	db.close()
-	})
-		
-
-	
-}
-
-app.post('/login', login)
-function login(request, response){
+			var user = 	{ 	'username': name, 
+							'email': email, 
+							'password': password, 
+							'verified': 'no' 
+						}
 			
-		MongoClient.connect(url,  { useNewUrlParser: true }).then(function (db){		
-			var username = request.body['username']
-			var password = request.body['password']
-			var ret = {'status': "OK"}
-			var userTable = db.db("stack").collection("user")
-			userTable.find({'username': username}).toArray(function(err, result){
-				if(err) throw (err);
-				query = result[0]
-				console.log("QUERY is :" + query.verified)
-				if(query['password'] == password && query['verified'] == 'yes'){
-					request.session.user = username
-					console.log("login :" + request.session.user)
-					return response.json({ 'status': 'OK' }) 
-				}else{
-					return response.json({ 'status':'error'}) 
-				}
-			})			
+			userTable.insertOne(user)
+			console.log('adduser')
+			db.close()
+			return response.json({ 'status': 'OK' })
+		}).catch(function(err){
+			if (err) throw err
 		})
+	}
+
+	return response.render('adduser' )
+
+}
+
+
+app.all('/verify',verify)
+function verify(request, response){
+	if(request.method == 'POST'){
+		MongoClient.connect(url,  { useNewUrlParser: true }).then(function (db){
+			
+			var email = request.body['email']
+			var key=request.body['key']
+			if(key == 'abracadabra'){
+				var userTable = db.db("stack").collection("user")
+				var myquery = { 'email': email }
+				var newvalues = { $set: {'verified': "yes" } };
+				userTable.updateOne(myquery, newvalues, function(err, res){
+					if (err) throw err;
+					console.log('verifyied Success')
+				})
+				return response.json({ 'status': 'OK' }) 
+			}else{
+				return response.json({ 'status':'error'}) 
+			}
+
+			
+			db.close()
+		})
+	}
+
+	return response.render('verify', {'response': response, 'request': request})
+}
+
+app.all('/login', login)
+function login(request, response){
+		
+		if(request.method == 'POST'){
+			MongoClient.connect(url,  { useNewUrlParser: true }).then(function (db){		
+				var username = request.body['username']
+				var password = request.body['password']
+				var ret = {'status': "OK"}
+				var userTable = db.db("stack").collection("user")
+				userTable.find({'username': username}).toArray(function(err, result){
+					if(err) throw (err);
+					query = result[0]
+					console.log("QUERY is :" + query.verified)
+					if(query['password'] == password && query['verified'] == 'yes'){
+						request.session.user = username
+						console.log("login :" + request.session.user)
+						return response.json({ 'status': 'OK' }) 
+					}else{
+						return response.json({ 'status':'error'}) 
+					}
+				})			
+			})
+		}
+		return response.render('login', {person : "KevinLOII"})
 }
 
 app.post('/logout', logout)

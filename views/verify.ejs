@@ -1,0 +1,69 @@
+
+<!doctype html>
+
+<html>
+	<head>
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+		<link href="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
+		<script src="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js"></script>
+		<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+		<link rel="stylesheet" href="index.css">
+		<title>Verify</title>
+        <script>
+            // $(document).ready(
+            // function(){
+            //     $('#login').click(
+            //     function(e){
+            //         $.ajax({
+            //             url: '/login',
+            //             type: 'GET',
+            //             success: function (data){
+            //                 window.location.href='/login'
+            //             }
+            //         })
+
+
+            //     })
+            
+            
+            
+            // })  
+        
+        </script>
+    </head>
+   
+    
+		
+	<body class='container'>
+        <button onclick="window.location.href='/login'"> Login</button>
+        <button onclick="window.location.href='/adduser'"> Sign Up</button>
+        <button onclick="window.location.href='/verify'"> Verify</button>
+		<form  method='post' action="/login"> 
+			
+			<div class="container login-container">
+				<div class="row">
+					<div class="col-md-6 login-form-1">
+						<h3>Verify User </h3>
+						<form method="post" action='/login'>
+							<div class="form-group">
+								<input type="text" class="form-control" placeholder="Email" value="" name='email'/>
+							</div>
+							<div class="form-group">
+								<input type="password" class="form-control" placeholder="Key" value="" name='key'/>
+							</div>
+							<div class="form-group">
+								<input type="submit" class="btnSubmit" value="Login" />
+							</div>
+							<!-- <div class="form-group">
+								<a href="#" class="ForgetPwd">Forget Password?</a>
+							</div> -->
+						</form>
+					</div>
+				</div>
+			</div>
+		
+		</form>
+	</body>	
+</html> 
+
+
