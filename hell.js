@@ -227,7 +227,9 @@ function addAnswer(request, response){
 				answer ={	'pid' : pid,
 							'body': body,
 							'media': media,
-							'aid': aid
+							'aid': aid,
+							'user': request.session['user'],
+							'timestamp': Date.now()
 						}
 				
 				answerTable.insertOne(answer, 
@@ -239,6 +241,69 @@ function addAnswer(request, response){
 
 
 			})
+		})
+
+	}
+}
+
+app.get('/questions/:pid/answers', getAnswer)
+function getAnswer(request, response){
+	//return response.json({"statis": "evil"})
+	MongoClient.connect(url,  { useNewUrlParser: true }).then(getAnswer2)
+	function getAnswer2(db){
+		
+		var pid = parseInt(request.params.pid)
+		//return response.json({"statis": "evil"})
+		var answerTable = db.db("stack").collection("answer")
+		
+		answerTable.find({"pid": pid}).toArray(
+		function(err, result){
+			var retAnswer = []
+			for(var i = 0; i < result.length; i++){
+				var item =	{	'id': result[i]['aid'].toString(),
+								'user': result[i]['user'],
+								'body': result[i]['body'],
+								'score': -100000,
+								'is_accepted': 'yes',
+								'timestamp': result[i]['timestamp'],
+								'media': result[i]['media']
+							}
+				retAnswer.push(item)
+			}
+
+			return response.json({'answers': retAnswer})
+		})
+
+
+	}
+
+
+}
+
+
+
+app.post('/search', search)
+function search(request, response){
+	MongoClient.connect(url,  { useNewUrlParser: true }).then(getAnswer2)
+	function getAnswer2(db){
+		var questionTable = db.db("stack").collection("question")
+
+		var timestamp = request.body['timestamp']
+		var limit = request.body['limit']
+		var accepted = request.body['accepted']
+
+		questionTable.find({}).toArray(
+		function(err, result){
+			var filterResult =[]
+			for(var i = 0; i < result.length; i++){
+				if(result[i]['timestamp'] <= timestamp){
+					filterResult.push(result[i])
+				}
+			}
+
+
+
+
 		})
 
 	}
@@ -257,4 +322,5 @@ id = id
 
 response.sendFile(__dirname + '/templates/adduser.html')
 <%= person %>      ejs template engine
+pp
 */
