@@ -43,14 +43,16 @@ function adduser(request, response){
 			
 			userTable.insertOne(user)
 			console.log('adduser')
-			db.close()
 			return response.json({ 'status': 'OK' })
 		}).catch(function(err){
-			if (err) throw err
+			//if (err) throw err
+			return response.json({ 'status': 'error', 'err':err })
 		})
 	}
 
-	return response.render('adduser' )
+	if(request.method == 'GET'){
+		return response.render('adduser' )
+	}
 
 }
 
@@ -106,7 +108,9 @@ function login(request, response){
 				})			
 			})
 		}
-		return response.render('login', {person : "KevinLOII"})
+		if(request.method == 'GET'){
+			return response.render('login', {person : "Kevin Lin"})
+		}
 }
 
 app.post('/logout', logout)

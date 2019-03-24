@@ -9,6 +9,7 @@
 		<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 		<link rel="stylesheet" href="index.css">
 		<title>Sign up Page</title>
+		
 	</head>
 		
 	<body class='container'>
@@ -21,18 +22,18 @@
 				<div class="row">
 					<div class="col-md-6 login-form-1">
 						<h3>Sign up </h3>
-						<form method="post" action='/adduser'>
+						<form >
 							<div class="form-group">
-								<input type="text" class="form-control" placeholder="Username" value="" name='username'/>
+								<input type="text" class="form-control" placeholder="Username" value="" name='username' id='username'/>
 							</div>
 							<div class="form-group">
-								<input type="text" class="form-control" placeholder="Email" value="" name='email'/>
+								<input type="text" class="form-control" placeholder="Email" value="" name='email'id='email'/>
 							</div>
 							<div class="form-group">
-								<input type="password" class="form-control" placeholder="Password" value="" name='password'/>
+								<input type="password" class="form-control" placeholder="Password" value="" name='password' id='password'/>
 							</div>
 							<div class="form-group">
-								<input type="submit" class="btnSubmit" value="Sign up" />
+								<input type="submit" class="btnSubmit" value="Sign up" id="adduser"/>
 							</div>
 							<!-- <div class="form-group">
 								<a href="#" class="ForgetPwd">Forget Password?</a>
@@ -43,6 +44,31 @@
 			</div>
 		
 		</form>
+		<script>
+				$(document).ready(function(){
+					$("#adduser").click( 
+					function(e) {
+						data =  {   'username': $('#username').val(),
+									'email': $('#email').val(),
+									'password': $("#password").val()
+								}
+								alert(data.email + " " +data.username + " " + data.password)
+						$.ajax({
+							url: '/adduser',
+							type: 'POST',
+							contentType:"application/json",
+							dataType:"json",
+							data: JSON.stringify(data),
+							success: function (data){
+								alert("status is " + data['status'])
+							},
+							error: function(err){
+								alert(err['status'])
+							}
+						})
+					})			
+				});
+			</script>
 	</body>	
 </html> 
 
