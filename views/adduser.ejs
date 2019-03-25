@@ -52,7 +52,6 @@
 									'email': $('#email').val(),
 									'password': $("#password").val()
 								}
-								alert(data.email + " " +data.username + " " + data.password)
 						$.ajax({
 							url: '/adduser',
 							type: 'POST',
@@ -60,10 +59,11 @@
 							dataType:"json",
 							data: JSON.stringify(data),
 							success: function (data){
-								alert("status is " + data['status'])
+								alert("User ADDED " + data['status'])
+								window.location.href='/verify'
 							},
 							error: function(err){
-								alert(err['status'])
+								alert("ERROR OCCURED WHILE ADDING USER " + err)
 							}
 						})
 					})			

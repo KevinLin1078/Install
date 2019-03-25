@@ -71,18 +71,18 @@ function verify(request, response){
 				userTable.updateOne(myquery, newvalues, function(err, res){
 					if (err) throw err;
 					console.log('verifyied Success')
+					return response.json({ 'status': 'OK' }) 
 				})
-				return response.json({ 'status': 'OK' }) 
 			}else{
 				return response.json({ 'status':'error'}) 
 			}
 
-			
-			db.close()
 		})
 	}
 
-	return response.render('verify', {'response': response, 'request': request})
+	if(request.method == 'GET'){
+		return response.render('verify')
+	}
 }
 
 app.all('/login', login)
@@ -191,8 +191,10 @@ function getQuestion(request, response){
 								function(err, result){
 									var userID = result['_id'].toString()
 									data = 	{	'status': 'OK',
-										'question' :{	'id':pid.toString(),
-														'user': { 	'id': userID,	// IMplement
+										'question' :{	
+														'id':pid.toString(),
+														'user': { 	
+																	'id': userID,	// IMplement
 																	'username': username,
 																	'reputation' : 0,
 																},
@@ -241,7 +243,8 @@ function addAnswer(request, response){
 							'media': media,
 							'aid': aid,
 							'user': request.session['user'],
-							'timestamp': Date.now()
+							'timestamp': Date.now(),
+							'accepted': true
 						}
 				
 				answerTable.insertOne(answer, 
@@ -276,7 +279,7 @@ function getAnswer(request, response){
 								'user': result[i]['user'],
 								'body': result[i]['body'],
 								'score': -100000,
-								'is_accepted': 'yes',
+								'accepted': true,
 								'timestamp': result[i]['timestamp'],
 								'media': result[i]['media']
 							}
@@ -312,10 +315,6 @@ function search(request, response){
 					filterResult.push(result[i])
 				}
 			}
-
-
-
-
 		})
 
 	}

@@ -9,27 +9,6 @@
 		<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 		<link rel="stylesheet" href="index.css">
 		<title>Verify</title>
-        <script>
-            // $(document).ready(
-            // function(){
-            //     $('#login').click(
-            //     function(e){
-            //         $.ajax({
-            //             url: '/login',
-            //             type: 'GET',
-            //             success: function (data){
-            //                 window.location.href='/login'
-            //             }
-            //         })
-
-
-            //     })
-            
-            
-            
-            // })  
-        
-        </script>
     </head>
    
     
@@ -38,21 +17,20 @@
         <button onclick="window.location.href='/login'"> Login</button>
         <button onclick="window.location.href='/adduser'"> Sign Up</button>
         <button onclick="window.location.href='/verify'"> Verify</button>
-		<form  method='post' action="/login"> 
-			
+		<form> 
 			<div class="container login-container">
 				<div class="row">
 					<div class="col-md-6 login-form-1">
 						<h3>Verify User </h3>
-						<form id="verify">
+						<form >
 							<div class="form-group">
-								<input type="text" class="form-control" placeholder="Email" value="" name='email'/>
+								<input type="text" class="form-control" placeholder="Email" value="" name='email' id='email'/>
 							</div>
 							<div class="form-group">
-								<input type="password" class="form-control" placeholder="Key" value="" name='key'/>
+								<input type="text" class="form-control" placeholder="Key" value="" name='key' id='key'/>
 							</div>
 							<div class="form-group">
-								<input type="submit" class="btnSubmit" value="Login" />
+								<input type="submit" class="btnSubmit" value="Verify" id='verify'/>
 							</div>
 							<!-- <div class="form-group">
 								<a href="#" class="ForgetPwd">Forget Password?</a>
@@ -62,7 +40,33 @@
 				</div>
 			</div>
 		
-		</form>
+        </form>
+        <script>
+				$(document).ready(function(){
+					$("#verify").click( 
+					function(e) {
+						data =  {   
+									'email': $('#email').val(),
+									'key': $('#key').val()
+								}
+								alert(data.email + " " +data.key)
+						$.ajax({
+							url: '/verify',
+							type: 'POST',
+							contentType:"application/json",
+							dataType:"json",
+							data: JSON.stringify(data),
+							success: function (data){
+								alert("User is VERIFIED " + data['status'] )
+								window.location.href='/login'
+							},
+							error: function(err){
+								alert(err['status'])
+							}
+						})
+					})			
+				});
+			</script>
 	</body>	
 </html> 
 
