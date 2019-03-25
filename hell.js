@@ -27,8 +27,6 @@ function index(request, response){
 }
 
 
-
-global.ret = "NONE"
 app.all('/adduser', adduser)
 function adduser(request, response){
 	if(request.method == 'POST'){
@@ -37,15 +35,17 @@ function adduser(request, response){
 			var name = jss['username']
 			var email = jss['email']
 			var password = jss['password']
-			test = 12	
+			var key = 'keykey1212'
 			var userTable = db.db("stack").collection("user")
 			var user = 	{ 	'username': name, 
 							'email': email, 
 							'password': password, 
-							'verified': 'no' 
+							'verified': 'no'
 						}
 			
-			userTable.insertOne(user)
+			userTable.insertOne(user, function(err, res){
+				sendMail(email, key)
+			})
 			console.log('adduser')
 			return response.json({ 'status': 'OK' })
 		}).catch(function(err){
@@ -68,12 +68,13 @@ function verify(request, response){
 			
 			var email = request.body['email']
 			var key=request.body['key']
-			if(key == 'abracadabra'){
+			if(key == 'abracadabra' || key =='keykey1212'){
 				var userTable = db.db("stack").collection("user")
 				var myquery = { 'email': email }
 				var newvalues = { $set: {'verified': "yes" } };
 				userTable.updateOne(myquery, newvalues, function(err, res){
 					if (err) throw err;
+					
 					console.log('verifyied Success')
 					return response.json({ 'status': 'OK' }) 
 				})
@@ -120,47 +121,51 @@ function login(request, response){
 app.post('/logout', logout)
 function logout(request, response){
 	console.log("logout :" + request.session.user)
-	request.session = null
+	request.session.destroy()
 	return response.json({ 'status': 'OK' })
 	
 }
 
 app.post('/questions/add', addQuestions)
 function addQuestions(request, response){
-
+	
 	MongoClient.connect(url,  { useNewUrlParser: true }).then(addQuestion)
 	function addQuestion(db){
-		if(!request.session['user']){
-			return response.json({ 'status': 'not logged in' }) 
+		if(!request.session.user){
+			return response.json({'status':'error'})
 		}
-		
-		var questionTable = db.db("stack").collection("question")
-		var idTable = db.db("stack").collection("pid")
 
-		idTable.find({'pid':'pid'}).toArray(updateId)
-		function updateId(err, result){
+		if(request.session.user){
+			var questionTable = db.db("stack").collection("question")
+			var idTable = db.db("stack").collection("pid")
+			pass1 = 1
+			idTable.find({'pid':'pid'}).toArray(updateId)
+			function updateId(err, result){
+				if(err || result.length == 0){	return response.json({ 'status': 'error' }) }
+				pid = result[0]['id']
+				idTable.updateOne({'pid':'pid'}, { $set: {'id': pid+1 } }, 
+				function(err, res){
+					if(err ){	return response.json({ 'status': 'error' }) }
+					title = request.body['title']
+					body = request.body['body']
+					tags = request.body['tags']
+					username = request.session.user
+					var question =	{	'username': username, 
+										'title': title, 
+										'tags': tags, 
+										'view_count': 0,
+										'time' : Date.now(),
+										'pid' : pid// id of question
+									}
+					pid = pid.toString()
+					questionTable.insertOne(question, function(err, result){
+						return response.json({ 'status': 'OK', 'id':pid	}) 
+					})	
+				})
 
-			pid = result[0]['id']
-			idTable.updateOne({'pid':'pid'}, { $set: {'id': pid+1 } }, function(err, res){
-	  			if (err) throw err;
-	  			console.log('id update Success')
-	  		})
+				
 
-			title = request.body['title']
-			body = request.body['body']
-			tags = request.body['tags']
-			username = request.session['user']
-			var question =	{	'username': username, 
-								'title': title, 
-								'tags': tags, 
-								'view_count': 0,
-								'time' : Date.now(),
-								'pid' : pid// id of question
-						 	}
-
-		  	questionTable.insertOne(question, function(err, result){
-				return response.json({ 'status': 'OK', 'id': pid}) 
-			})
+			}
 		}
 	}
 
@@ -322,6 +327,27 @@ function search(request, response){
 		})
 
 	}
+}
+
+function sendMail(email, key){
+    
+    var transporter = mail.createTransport({
+        host:'smtp.gmail.com',
+        port:465,
+        secure:true,
+        auth: {
+            user: 'ktube110329@gmail.com',
+            pass: '@12345678kn'
+        }
+    });
+    var mailOpton = {
+        from: 'ktube110329@gmail.com',
+        to: email,
+        subject: "Verification Key",
+        text: 'validation key:<' + key +">"
+    };
+
+    var info = transporter.sendMail(mailOpton)    
 }
 
 

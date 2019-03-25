@@ -1,19 +1,35 @@
 #!/usr/bin/env nodejs
-
-var MongoClient = require('mongodb').MongoClient;
-var url = 'mongodb://130.245.170.77:27017';
-
-
-console.log("ef")
+var mongodb = require('mongodb');
+var MongoClient = mongodb.MongoClient;
+var url = 'mongodb://localhost:27017';
 
 
-MongoClient.connect(url,  { useNewUrlParser: true }, insert)
 
 
-function insert(err, db){
-	var dbo = db.db("mm");
-	var myobj = { name: "Anniec", address: "Anna 37" };
-  	dbo.collection("movie").insertOne(myobj)
-}
+MongoClient.connect(url,  { useNewUrlParser: true }).then(
+function (db){			
+	
+	var idTable = db.db("stack").collection("pid")
+	pass1 = 1
+	idTable.updateOne({'pid':'pid'}, { $set: {'id': 1 } }, 
+	function(err, res){
+		console.log('ggod')
+		db.close()
+	})
 
-console.log('successSSS')
+})
+
+
+
+MongoClient.connect(url,  { useNewUrlParser: true }).then(
+	function (db){			
+		
+		var idTable = db.db("stack").collection("answer_id")
+		pass1 = 1
+		idTable.updateOne({'aid':'aid'}, { $set: {'id': 1 } }, 
+		function(err, res){
+			console.log('ggod')
+			db.close()
+		})
+	
+})
