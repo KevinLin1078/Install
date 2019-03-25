@@ -7,21 +7,23 @@
 		<link href="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
 		<script src="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js"></script>
 		<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-		<link rel="stylesheet" href="index.css">
+		<link rel="stylesheet" href="css/index.css">
 		<title>Verify</title>
     </head>
    
     
 		
 	<body class='container'>
-        <button onclick="window.location.href='/login'"> Login</button>
-        <button onclick="window.location.href='/adduser'"> Sign Up</button>
-        <button onclick="window.location.href='/verify'"> Verify</button>
+			<div align='center'>
+					<button onclick="window.location.href='/login'"/> Login</button>
+					<button onclick="window.location.href='/adduser'"> Sign Up</button>
+					<button onclick="window.location.href='/verify'" style='background-color: red'> Verify</button>
+				</div>
 		<form> 
 			<div class="container login-container">
 				<div class="row">
 					<div class="col-md-6 login-form-1">
-						<h3>Verify User </h3>
+						<h3 style='color: red'>Verify User </h3>
 						<form >
 							<div class="form-group">
 								<input type="text" class="form-control" placeholder="Email" value="" name='email' id='email'/>

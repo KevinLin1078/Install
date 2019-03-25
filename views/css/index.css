@@ -46,6 +46,12 @@
   } */
   
   /* Reset */
+
+  .container1{
+    margin-left: auto;
+    margin-right: auto;
+  }
+
   button {
     background: transparent;
     border: 0;
@@ -57,9 +63,10 @@
   
   /* Custom */
   button {
+    margin-top: 20px;
     display: inline-block;
     position: relative;
-    padding: 20px 38px;
+    padding:0px 38px;
     top: 0;
     font-size: 30px;
     font-family: "Open Sans", Helvetica;

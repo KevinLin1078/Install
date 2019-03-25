@@ -8,7 +8,8 @@ var session = require('express-session')
 var mongodb = require('mongodb');
 var MongoClient = mongodb.MongoClient;
 var url = 'mongodb://localhost:27017';
-//var url = 'mongodb://130.245.170.77:27017';
+
+var mail = require('nodemailer')
 
 
 app.use(session({resave:true, secret:'iloveit', saveUninitialized:true}))
@@ -20,8 +21,11 @@ app.use(bodyParser.json() ) ; // must use this to parse form data
 
 app.all('/', index)
 function index(request, response){
-	return response.redirect('/login')
+	if(request.method == 'GET'){
+		return response.render('login' )
+	}
 }
+
 
 
 global.ret = "NONE"
@@ -154,9 +158,9 @@ function addQuestions(request, response){
 								'pid' : pid// id of question
 						 	}
 
-		  	questionTable.insertOne(question)
-		  	console.log('added qeustion: ' + title )
-		  	return response.json({ 'status': 'OK', 'id': pid}) 
+		  	questionTable.insertOne(question, function(err, result){
+				return response.json({ 'status': 'OK', 'id': pid}) 
+			})
 		}
 	}
 
