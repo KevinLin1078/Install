@@ -7,8 +7,7 @@ var bodyParser = require('body-parser')
 var session = require('express-session')
 var mongodb = require('mongodb');
 var MongoClient = mongodb.MongoClient;
-var url = 'mongodb://localhost:27017';
-
+var url = 'mongodb://130.245.170.57:27017';
 var mail = require('nodemailer')
 
 
@@ -127,104 +126,61 @@ function logout(request, response){
 }
 
 app.post('/questions/add', addQuestions)
-function addQuestions(request, response){
-	
-	MongoClient.connect(url,  { useNewUrlParser: true }).then(addQuestion)
-	function addQuestion(db){
+async function addQuestions(request, response){
+	console.log("add question")
+	MongoClient.connect(url,  { useNewUrlParser: true }).then( async function addQuestion(db){
+		console.log(url)
 		if(!request.session.user){
-			return response.json({'status':'error'})
+			return response.json({'status':'error', 'error': 'Please login to add question'})
+		}
+		questionTable = await db.db("stack").collection("question")
+		if( !('title' in request.body) ){
+			return response.json({'status':'error', 'error': 'Title cannot be empty'})
 		}
 
-		if(request.session.user){
-			var questionTable = db.db("stack").collection("question")
-			var idTable = db.db("stack").collection("pid")
-			pass1 = 1
-			idTable.find({'pid':'pid'}).toArray(updateId)
-			function updateId(err, result){
-				if(err || result.length == 0){	return response.json({ 'status': 'error' }) }
-				pid = result[0]['id']
-				idTable.updateOne({'pid':'pid'}, { $set: {'id': pid+1 } }, 
-				function(err, res){
-					if(err ){	return response.json({ 'status': 'error' }) }
-					title = request.body['title']
-					body = request.body['body']
-					tags = request.body['tags']
-					username = request.session.user
-					var question =	{	'username': username, 
-										'title': title, 
-										'tags': tags, 
-										'view_count': 0,
-										'time' : Date.now(),
-										'pid' : pid// id of question
-									}
-					pid = pid.toString()
-					questionTable.insertOne(question, function(err, result){
-						return response.json({ 'status': 'OK', 'id':pid	}) 
-					})	
-				})
+		title = request.body['title']
+		body = request.body['body']
+		tags = request.body['tags']
 
-				
-
-			}
+		username = request.session.user
+		question =	{
+					'user': 		{	'username': username,
+										'reputation': 1
+									},
+					'title': title, 
+					'body': body,
+					'score': 0,
+					'view_count': 0,
+					'answer_count': 0,
+					'timestamp':Date.now(),
+					'media': null,
+					'tags': tags,
+					'accepted_answer_id': null,
+					'username': username
 		}
-	}
-
+		await questionTable.insertOne(question, function(err, res){
+			pid = question._id
+			return response.json({'status':'OK', 'id': pid})
+		})
+		
+	})
 }
 
 app.get('/questions/:pid', getQuestion) //pid = id of Question
 function getQuestion(request, response){
-	MongoClient.connect(url,  { useNewUrlParser: true }).then(updateViewCount)
-	function updateViewCount(db){
-		var questionTable = db.db("stack").collection("question")
-		var pid = parseInt(request.params.pid)
-		var userTable = db.db("stack").collection("user")
-
-		questionTable.findOne({'pid':pid}, getCount)
-		function getCount(err, result){
-			
-			count = result['view_count']
-			console.log('before count is :  '+ count)
-			questionTable.updateOne({'pid': pid}, { $set: {'view_count': count + 1}},
-				function(err, res){
-					console.log('update is ' + res)
-
-					questionTable.findOne({'pid': pid},
-						function(err, result){
-							var username =  result['username']
-							var body = result['body']
-							var timestamp =  result['time']
-							var tags = result['tags']
-							var view_count = result['view_count']
-							console.log('after count is :  '+ result['view_count'])
-							userTable.findOne({'username': username}, 
-								function(err, result){
-									var userID = result['_id'].toString()
-									data = 	{	'status': 'OK',
-										'question' :{	
-														'id':pid.toString(),
-														'user': { 	
-																	'id': userID,	// IMplement
-																	'username': username,
-																	'reputation' : 0,
-																},
-													},
-										'body': body,
-										'score': -1000000,
-										'view_count' : view_count,
-										'answer_count': -100000000,
-										'timestamp': timestamp,
-										'media': [],
-										'tags': tags,
-										'accepted_answer_id': -1000000000
-									}
-									console.log('done')
-									return response.json(data) 					
-								})
-						})
-					
-				})				
+	MongoClient.connect(url,  { useNewUrlParser: true }).then(async  function (db){
+		
+		questionTable = db.db("stack").collection("question")
+		pid = request.params.pid
+		result = await questionTable.findOne({"_id": pid})
+		if(result == null){
+			ip = request.connection.remoteAddress
+			return response.json({'status': 'error', 'error': 'Question does not exist', "ip": ip })
 		}
-	}
+		
+
+		
+	})
 }
 
 
